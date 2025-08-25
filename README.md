@@ -1,6 +1,6 @@
 # Weather Dashboard (Next.js 15 + Prisma + MongoDB)
 
-A minimal yet robust weather dashboard built with Next.js 15 App Router, React 19, Tailwind CSS (v4), shadcn/ui, Prisma, and MongoDB. It fetches weather data from OpenWeather and persists user preferences and cached results for performance and reduced API usage.
+A clean, production-ready weather dashboard built with Next.js 15 (App Router), React 19, Tailwind CSS v4, shadcn/ui, Prisma, and MongoDB. It fetches data from OpenWeather, caches responses, and persists user preferences to reduce API usage and improve performance.
 
 
 ## Contents
@@ -25,19 +25,19 @@ A minimal yet robust weather dashboard built with Next.js 15 App Router, React 1
    ```bash
    npm install
    ```
-2. Set environment variables (see section 2). Example `.env.local`:
+2. Create `.env.local` and set variables (see section 2). Example:
    ```bash
    # OpenWeather API key (required)
    OPENWEATHER_API_KEY=YOUR_OPENWEATHER_API_KEY
-   
+
    # MongoDB connection (required)
    DATABASE_URL="mongodb://localhost:27017/weather"
-   
+
    # Optional caching TTL in minutes (defaults to 10)
    CACHE_TTL_MINUTES=10
    ```
 3. Start MongoDB locally (see section 3) or use MongoDB Atlas.
-4. Generate Prisma Client and push schema:
+4. Generate Prisma Client and apply the schema:
    ```bash
    npm run prisma:generate
    npm run prisma:db:push
@@ -48,30 +48,30 @@ A minimal yet robust weather dashboard built with Next.js 15 App Router, React 1
    ```
 6. Open the app at http://localhost:3000
 
-Node 20+ recommended.
+Node.js 20+ recommended.
 
 
 ## 2) Environment variables
 
-- OPENWEATHER_API_KEY: string (required)
-- DATABASE_URL: string (required) – MongoDB connection string
-- CACHE_TTL_MINUTES: number (optional, default: 10)
+- `OPENWEATHER_API_KEY`: string (required)
+- `DATABASE_URL`: string (required) – MongoDB connection string
+- `CACHE_TTL_MINUTES`: number (optional, default: 10)
 
 Security notes:
-- Never commit real secrets to source control. Prefer `.env.local` (gitignored).
-- OpenWeather quotas apply; rotate keys if compromised.
+- **Never** commit real secrets to source control. Use `.env.local` (gitignored).
+- **Rotate** API keys immediately if compromised (OpenWeather quotas apply).
 
 
 ## 3) Local database setup (MongoDB)
 
-Option A: Docker (quickest)
+**Option A: Docker (quickest)**
 ```bash
 # Start MongoDB 7 locally on port 27017
 docker run --name weather-mongo -p 27017:27017 -d mongo:7
 ```
 Set `DATABASE_URL` to `mongodb://localhost:27017/weather`.
 
-Option B: MongoDB Atlas
+**Option B: MongoDB Atlas**
 - Create a free cluster and obtain a connection string
 - Set `DATABASE_URL` accordingly
 
@@ -91,86 +91,86 @@ This project uses `db push` to sync schema; no SQL migrations are generated for 
 
 ## 5) Scripts
 
-- `npm run dev` – Start Next.js dev server (Turbopack)
-- `npm run build` – Build for production
-- `npm run start` – Start production server
-- `npm run lint` – Run ESLint
-- `npm run lint:fix` – Fix lint issues in `src/`
-- `npm run format` – Prettier format `src/`
-- `npm run prisma:generate` – Generate Prisma client
-- `npm run prisma:db:push` – Push schema to DB
+- **npm run dev**: Start Next.js dev server (Turbopack)
+- **npm run build**: Build for production
+- **npm run start**: Start production server
+- **npm run lint**: Run ESLint
+- **npm run lint:fix**: Fix lint issues in `src/`
+- **npm run format**: Prettier format `src/`
+- **npm run prisma:generate**: Generate Prisma client
+- **npm run prisma:db:push**: Push schema to DB
 
 
 ## 6) Tech stack choices & rationale
 
-- **Next.js 15 (App Router)**: Modern routing, server components, simplified API routes and server-only utilities.
+- **Next.js 15 (App Router)**: Modern routing, server components, and streamlined API routes.
 - **React 19**: Latest concurrent features and ergonomics.
-- **Tailwind CSS v4 + shadcn/ui + Radix primitives**: Rapid, accessible UI development with composable components.
-- **Prisma (provider: MongoDB)**: Type-safe data access with a flexible document database. Mongo is sufficient for the simple data model (cities, preferences, cache) and easy to run locally.
-- **OpenWeather APIs**: Reliable, well-documented public weather API with both current and forecast data and a One Call 3.0 endpoint for hourly/daily and alerts.
-- **Server-only weather library** (`src/lib/weather.ts`): Encapsulates calls, adds caching, DB persistence, and error handling.
+- **Tailwind CSS v4 + shadcn/ui + Radix**: Fast, accessible UI development with composable components.
+- **Prisma (MongoDB provider)**: Type-safe data access on a flexible document database; simple to run locally.
+- **OpenWeather APIs**: Well-documented public API for current and forecast data (including One Call 3.0).
+- **Server-only weather library** (`src/lib/weather.ts`): Encapsulates API calls, caching, persistence, and error handling.
 
 
 ## 7) API documentation
 
-All routes reside under `/src/app/api/*` and use Next.js App Router request handlers.
+All routes live under `/src/app/api/*` using Next.js App Router handlers.
 
 ### 7.1 GET /api/weather
 Fetches current weather and 5-day forecast for a city.
 
-Query params:
-- `q` (required) – city query; supports `City` or `City,CC` (two-letter country code)
-- `search` (optional) – if provided, returns geocoding search results instead of weather
+- **Query params**:
+  - `q` (required) – city query; supports `City` or `City,CC` (two-letter country code)
+  - `search` (optional) – if provided, returns geocoding search results instead of weather
 
-Responses:
-- On `search`: `{ results: [{ name, country, lat, lon }, ...] }`
-- On `q`: `{ current, forecast }`
+- **Responses**:
+  - On `search`: `{ results: [{ name, country, lat, lon }, ...] }`
+  - On `q`: `{ current, forecast }`
 
-Example:
-```
-GET /api/weather?q=Paris,FR
-GET /api/weather?search=San
-```
+- **Examples**:
+  ```http
+  GET /api/weather?q=Paris,FR
+  GET /api/weather?search=San
+  ```
 
-Notes:
-- Uses `getCurrentWeatherForCity` and `getForecastForCity` from `src/lib/weather.ts`
-- Metric units returned by default (Celsius, m/s from API; UI displays km/h)
+- **Notes**:
+  - Uses `getCurrentWeatherForCity` and `getForecastForCity` from `src/lib/weather.ts`
+  - Metric units returned by default (Celsius, m/s from API; UI displays km/h)
 
 ### 7.2 GET /api/weather/alerts
 Retrieves One Call 3.0 data (alerts, 24h hourly, 7-day daily) for coordinates.
 
-Query params:
-- `lat` (required)
-- `lon` (required)
+- **Query params**:
+  - `lat` (required)
+  - `lon` (required)
 
-Response shape:
-```
-{
-  alerts: [ ... ] | [],
-  current: { ... },
-  hourly: [ ... up to 24 items ... ],
-  daily: [ ... up to 7 items ... ]
-}
-```
+- **Response shape**:
+  ```json
+  {
+    "alerts": [ ... ] | [],
+    "current": { ... },
+    "hourly": [ ... up to 24 items ... ],
+    "daily": [ ... up to 7 items ... ]
+  }
+  ```
 
-Example:
-```
-GET /api/weather/alerts?lat=48.8566&lon=2.3522
-```
+- **Example**:
+  ```http
+  GET /api/weather/alerts?lat=48.8566&lon=2.3522
+  ```
 
-Notes:
-- Requires One Call 3.0 access on your OpenWeather account.
+- **Notes**:
+  - Requires One Call 3.0 access on your OpenWeather account.
 
 ### 7.3 Favorites – Cities API
 
-- `GET /api/cities` → `{ cities: [{ id, name, country, lat?, lon? }, ...] }`
-- `POST /api/cities` with JSON body `{ name: string, country?: string }` → `{ city }` (201)
-- `DELETE /api/cities?cityId=...` → `{ success: true }`
-- `DELETE /api/cities/[id]` → `{ ok: true }`
+- **GET** `/api/cities` → `{ cities: [{ id, name, country, lat?, lon? }, ...] }`
+- **POST** `/api/cities` with JSON `{ name: string, country?: string }` → `{ city }` (201)
+- **DELETE** `/api/cities?cityId=...` → `{ success: true }`
+- **DELETE** `/api/cities/[id]` → `{ ok: true }`
 
-Notes:
-- City uniqueness: `(name, country)` pair
-- A single demo "user" is represented by `UserPreference` with id `default`
+- **Notes**:
+  - City uniqueness: `(name, country)` pair
+  - A single demo "user" is represented by `UserPreference` with id `default`
 
 
 ## 8) Data model (Prisma)
@@ -188,8 +188,8 @@ See `prisma/schema.prisma` for full definitions and indexes.
 - DB-backed caching of OpenWeather responses in `WeatherCache`
 - Keys: `(cityId, type)` where type ∈ {`current`, `forecast`}
 - TTL: default 10 minutes (configurable via `CACHE_TTL_MINUTES`)
-- Benefits: reduces API calls, improves perceived performance
-- One Call 3.0 route (`/api/weather/alerts`) is not cached in DB; it’s fetched fresh per request.
+- Benefits: reduces API calls and improves perceived performance
+- The One Call 3.0 route (`/api/weather/alerts`) is not cached; it’s fetched fresh per request.
 
 
 ## 10) Assumptions
@@ -197,7 +197,7 @@ See `prisma/schema.prisma` for full definitions and indexes.
 - Single-user demo app using `UserPreference` with id `default` (no auth integration).
 - Metric units for temperature and speed; UI converts wind to km/h where needed.
 - Country codes are optional; when provided, two-letter uppercase is expected (e.g., `US`, `FR`).
-- The UI primarily targets desktop and modern browsers; basic mobile responsiveness via Tailwind/shadcn.
+- The UI targets desktop and modern browsers; basic mobile responsiveness via Tailwind/shadcn.
 - API error handling returns JSON `{ error: string }` with relevant HTTP status codes.
 
 

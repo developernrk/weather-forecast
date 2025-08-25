@@ -1,0 +1,62 @@
+// Prisma schema for Weather Dashboard using MongoDB
+// Set DATABASE_URL in .env, e.g. mongodb://localhost:27017/weather or MongoDB Atlas connection string
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model City {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  country   String         @default("") // use empty string to simplify unique compound index
+  lat       Float?
+  lon       Float?
+  createdAt DateTime       @default(now())
+
+  favorites FavoriteCity[]
+  cache     WeatherCache[]
+
+  @@unique([name, country])
+}
+
+model UserPreference {
+  // Single default user for this demo. Replace with auth-linked user id in real apps.
+  id        String         @id @map("_id")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  cities    FavoriteCity[]
+}
+
+model FavoriteCity {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  preferenceId  String
+  cityId        String          @db.ObjectId
+  order         Int             @default(0)
+
+  preference    UserPreference  @relation(fields: [preferenceId], references: [id])
+  city          City            @relation(fields: [cityId], references: [id])
+
+  createdAt     DateTime        @default(now())
+
+  @@unique([preferenceId, cityId])
+}
+
+model WeatherCache {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  cityId    String     @db.ObjectId
+  // "current" | "forecast"
+  type      String
+  data      Json
+  expiresAt DateTime
+  updatedAt DateTime  @updatedAt
+
+  city      City      @relation(fields: [cityId], references: [id])
+
+  @@unique([cityId, type])
+}

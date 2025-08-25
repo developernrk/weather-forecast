@@ -153,12 +153,12 @@
 }
 
 /* Subtle animated background gradient for professionalism */
-.bg-animated-sky {
-  background-image: radial-gradient(1200px 600px at -10% -10%, oklch(0.98 0.01 240 / 0.8), transparent 60%),
-                    radial-gradient(900px 500px at 110% -10%, oklch(0.98 0.02 250 / 0.7), transparent 60%),
-                    linear-gradient(135deg, oklch(0.98 0.01 240), oklch(0.96 0.02 260));
-  animation: skyShift 12s ease-in-out infinite alternate;
-}
+/*.bg-animated-sky {*/
+/*  background-image: radial-gradient(1200px 600px at -10% -10%, oklch(0.98 0.01 240 / 0.8), transparent 60%),*/
+/*                    radial-gradient(900px 500px at 110% -10%, oklch(0.98 0.02 250 / 0.7), transparent 60%),*/
+/*                    linear-gradient(135deg, oklch(0.98 0.01 240), oklch(0.96 0.02 260));*/
+/*  animation: skyShift 12s ease-in-out infinite alternate;*/
+/*}*/
 
 @keyframes skyShift {
   from { filter: hue-rotate(0deg) brightness(1); }

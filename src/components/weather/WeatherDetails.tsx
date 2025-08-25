@@ -335,13 +335,13 @@ export default function WeatherDetails({ city, current, forecast }: WeatherDetai
 
             {/* 24-Hour Forecast */}
             <TabsContent value="hourly" className="space-y-6 px-4">
-              <Card className="p-6">
+              <Card className="border-none p-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   ⏰ Next 24 Hours
                 </h3>
                 <div className="space-y-3">
                   {hourlyForecast.map((hour: any, index: number) => (
-                    <div key={hour.dt} className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors">
+                    <div key={hour.dt} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
                       <div className="flex items-center gap-4 flex-1">
                         <span className="font-medium w-12 text-sm">
                           {index === 0 ? 'Now' : new Date(hour.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric' })}

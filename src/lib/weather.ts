@@ -11,8 +11,9 @@ const GEO_BASE = 'https://api.openweathermap.org/geo/1.0';
 const DEFAULT_TTL_MIN = Number(process.env.CACHE_TTL_MINUTES ?? 10);
 
 // Read-only preference id from cookie; route handlers should ensure it's set
-function getPreferenceId(): string | null {
-  const id = cookies().get('prefId')?.value || cookies().get('pref_id')?.value;
+async function getPreferenceId(): Promise<string | null> {
+  const jar = await cookies();
+  const id = jar.get('prefId')?.value || jar.get('pref_id')?.value;
   return id ?? null;
 }
 
@@ -176,36 +177,53 @@ export async function getForecastForCity(name: string, country?: string) {
 
 export async function addFavoriteCity(name: string, country?: string) {
   const city = await upsertCity(name, country);
-  const prefId = getPreferenceId();
-  if (!prefId) throw new Error('Preference cookie missing. Ensure it is set in a Route Handler.');
+  const prefId = await getPreferenceId();
+
+  if (!prefId) {
+    throw new Error('Preference cookie missing. Ensure it is set in a Route Handler.');
+  }
+
   await prisma.userPreference.upsert({
     where: { id: prefId },
     update: {},
     create: { id: prefId },
   });
+
   await prisma.favoriteCity.upsert({
     where: { preferenceId_cityId: { preferenceId: prefId, cityId: city.id } } as any,
     update: {},
     create: { preferenceId: prefId, cityId: city.id as any },
   });
+
   return city;
 }
 
 export async function removeFavoriteCity(cityId: string) {
-  const prefId = getPreferenceId();
-  if (!prefId) throw new Error('Preference cookie missing. Ensure it is set in a Route Handler.');
-  await prisma.favoriteCity.delete({ where: { preferenceId_cityId: { preferenceId: prefId, cityId } } as any });
+  const prefId = await getPreferenceId();
+
+  if (!prefId) {
+    throw new Error('Preference cookie missing. Ensure it is set in a Route Handler.');
+  }
+
+  await prisma.favoriteCity.delete({
+    where: { preferenceId_cityId: { preferenceId: prefId, cityId } } as any,
+  });
 }
 
 export async function listFavoriteCities() {
-  const prefId = getPreferenceId();
-  if (!prefId) return [];
+  const prefId = await getPreferenceId();
+
+  if (!prefId) {
+    return [];
+  }
+
   const prefs = await prisma.userPreference.upsert({
     where: { id: prefId },
     create: { id: prefId },
     update: {},
     include: { cities: { include: { city: true } } },
   });
+
   // Normalize country empty string to undefined for UI
   return prefs.cities.map((c) => ({ ...c.city, country: c.city.country || undefined }));
 }

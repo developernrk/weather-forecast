@@ -8,8 +8,6 @@
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint",
-        "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
         "prisma:generate": "prisma generate",
         "prisma:db:push": "prisma db push --accept-data-loss"
@@ -79,7 +77,6 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
-        "@eslint/js": "^9.30.1",
         "@faker-js/faker": "^9.9.0",
         "@next/eslint-plugin-next": "^15.3.5",
         "@tailwindcss/postcss": "^4.1.11",
@@ -87,12 +84,6 @@
         "@types/node": "^24.0.10",
         "@types/react": "^19.1.8",
         "@types/react-dom": "^19.1.6",
-        "eslint": "^9.30.1",
-        "eslint-config-next": "^15.3.5",
-        "eslint-config-prettier": "^10.1.5",
-        "eslint-plugin-import": "^2.32.0",
-        "eslint-plugin-promise": "^7.2.1",
-        "eslint-plugin-react": "^7.37.5",
         "globals": "^16.3.0",
         "postcss": "^8.5.6",
         "prettier": "^3.6.2",

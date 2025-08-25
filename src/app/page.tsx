@@ -12,7 +12,7 @@ export default async function Page() {
     ];
 
   const weatherByCityPromise = Promise.all(
-    citiesToProcess.map(async (c) => {
+    citiesToProcess.map(async (c:any) => {
       try {
         const [current, forecast] = await Promise.allSettled([
           getCurrentWeatherForCity(c.name, c.country ?? undefined),
